@@ -1,0 +1,73 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Raylib and Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libraylib-dev libgl1-mesa-dev libx11-dev libxi-dev libxrandr-dev libxcursor-dev libxinerama-dev
+
+      - name: Compile Linux binary
+        run: |
+          gcc tw10sp_gui.c -o tw10sp_laser_tester_linux -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tw10sp_laser_tester_linux
+          path: tw10sp_laser_tester_linux
+
+  build-windows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install MinGW and Raylib Windows
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mingw-w64 curl unzip
+          curl -LO https://github.com/raysan5/raylib/releases/download/5.0/raylib-5.0_win64_mingw.zip
+          unzip raylib-5.0_win64_mingw.zip
+
+      - name: Compile Windows EXE
+        run: |
+          x86_64-w64-mingw32-gcc tw10sp_gui.c -o tw10sp_laser_tester_windows.exe \
+            -I./raylib-5.0_win64_mingw/include \
+            -L./raylib-5.0_win64_mingw/lib \
+            -lraylib -lopengl32 -lgdi32 -lwinmm -static
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tw10sp_laser_tester_windows.exe
+          path: tw10sp_laser_tester_windows.exe
+
+  publish:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_files
+          merge-multiple: true
+
+      - name: Publish Release to GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release_files/tw10sp_laser_tester_linux
+            release_files/tw10sp_laser_tester_windows.exe
