@@ -1,6 +1,7 @@
 # TW10SP Laser Distance Sensor Tester
 
-<img width="3361" height="1398" alt="screenshot" src="https://github.com/user-attachments/assets/f9b360c2-1c9a-418c-93c6-7940cd169689" />
+<img width="2688" height="1596" alt="Gemini_Generated_Image_n9st24n9st24n9st(1)" src="https://github.com/user-attachments/assets/692ad7fb-9bcc-4201-ba06-061bb5dfe73f" />
+
 
 
 A desktop application written in pure C using the **Raylib** library. Designed for real-time monitoring, visualization, and data streaming of the **TW10SP** laser distance sensor via a serial port (UART / USB-UART).
